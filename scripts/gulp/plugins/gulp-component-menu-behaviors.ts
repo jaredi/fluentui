@@ -1,4 +1,3 @@
-import * as behaviorDefinitions from '@fluentui/a11y-testing';
 import gutil from 'gulp-util';
 import path from 'path';
 import through2 from 'through2';
@@ -28,6 +27,7 @@ const getTextFromCommentToken = (commentTokens, tokenTitle): string => {
 
 export default () => {
   const result: BehaviorMenuItem[] = [];
+
   function bufferContents(this: Transform, file, enc, cb) {
     if (file.isNull()) {
       cb(null, file);
@@ -64,8 +64,9 @@ export default () => {
       if (!variation.specification) {
         const variationName = variation.name.replace('.ts', '');
         const definitionName = `${variationName}Definition`;
-        const definition = behaviorDefinitions[definitionName];
-
+        const definition = require('@fluentui/a11y-testing/src/definitions/Button/buttonBehaviorDefinition')
+          .buttonBehaviorDefinition;
+        // if (variationName === 'buttonBehavior') console.log(definition)
         // in some cases specification doesn't exists as well not definition for the behavior (alertBaseBehavior.ts)
         if (definition) {
           const specificationFromDefinition = definition

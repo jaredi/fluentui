@@ -29,7 +29,10 @@ import { spawnSync } from 'child_process';
 const { paths } = config;
 
 const logWatchAdd = (filePath: string) => log('Created', chalk.blue(path.basename(filePath)));
-const logWatchChange = (filePath: string) => log('Changed', chalk.magenta(path.basename(filePath)));
+const logWatchChange = (filePath: string) => {
+  delete require.cache[filePath];
+  log('Changed', chalk.magenta(path.basename(filePath)));
+};
 const logWatchUnlink = (filePath: string) => log('Deleted', chalk.red(path.basename(filePath)));
 
 const handleWatchUnlink = (group: any, filePath: string) => {
@@ -60,7 +63,10 @@ task('clean:docs', () =>
 // Build
 // ----------------------------------------
 
-const behaviorSrc = [`${paths.posix.packageSrc('accessibility')}/behaviors/*/[a-z]*Behavior.ts`];
+const behaviorSrc = [
+  `${paths.posix.packageSrc('accessibility')}/behaviors/*/[a-z]*Behavior.ts`,
+  `${paths.posix.allPackages('a11y-testing')}/src/definitions/*/[a-z]*Definition.ts`,
+];
 const examplesIndexSrc = `${paths.posix.docsSrc()}/examples/*/*/*/index.tsx`;
 const examplesSrc = `${paths.posix.docsSrc()}/examples/*/*/*/!(*index|.knobs).tsx`;
 const markdownSrc = ['packages/fluentui/!(CHANGELOG).md', 'specifications/*.md'];
