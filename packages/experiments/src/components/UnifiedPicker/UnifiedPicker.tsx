@@ -12,7 +12,6 @@ import {
   IDragDropEvents,
 } from 'office-ui-fabric-react';
 import { IUnifiedPickerProps } from './UnifiedPicker.types';
-import { useQueryString } from './hooks/useQueryString';
 import { useFloatingSuggestionItems } from './hooks/useFloatingSuggestionItems';
 import { useSelectedItems } from './hooks/useSelectedItems';
 import { IFloatingSuggestionItemProps } from '../../FloatingSuggestionsComposite';
@@ -40,6 +39,7 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
     headerComponent,
     onInputChange,
     customClipboardType,
+    onValidateInput,
   } = props;
 
   const {
@@ -63,13 +63,13 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
     itemsAreEqual,
     deserializeItemsFromDrop,
     serializeItemsForDrag,
+    createGenericItem,
   } = props.selectedItemsListProps;
 
   const { onClick: inputPropsOnClick, onFocus: inputPropsOnFocus } = props.inputProps || {};
 
   const rootRef = React.createRef<HTMLDivElement>();
   const input = React.useRef<Autofill>(null);
-  const { setQueryString, clearQueryString } = useQueryString('');
   const [selection, setSelection] = React.useState(new Selection({ onSelectionChanged: () => _onSelectionChanged() }));
   const [focusedItemIndices, setFocusedItemIndices] = React.useState(selection.getSelectedIndices() || []);
 
@@ -80,7 +80,6 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
 
   const {
     focusItemIndex,
-    setFocusItemIndex,
     suggestionItems,
     footerItemIndex,
     footerItems,
@@ -90,7 +89,8 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
     showPicker,
     selectPreviousSuggestion,
     selectNextSuggestion,
-    clearPickerSelectedIndex,
+    queryString,
+    setQueryString,
   } = useFloatingSuggestionItems(
     suggestions,
     pickerSuggestionsProps?.footerItemsProps,
@@ -160,6 +160,7 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
   };
 
   let insertIndex = -1;
+  let isInDropAction = false;
   const _dropItemsAt = (newItems: T[]): void => {
     let indicesToRemove: number[] = [];
     // If we are moving items within the same picker, remove them from their old places as well
@@ -170,6 +171,7 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
     dropItemsAt(insertIndex, newItems, indicesToRemove);
     unselectAll();
     insertIndex = -1;
+    isInDropAction = false;
   };
 
   const _onDragOverAutofill = (event?: React.DragEvent<HTMLDivElement>) => {
@@ -179,6 +181,7 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
   };
 
   const _onDropAutoFill = (event?: React.DragEvent<HTMLDivElement>) => {
+    isInDropAction = true;
     event?.preventDefault();
     if (onDropAutoFill) {
       onDropAutoFill(event);
@@ -193,6 +196,7 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
   };
 
   const _onDropList = (item?: any, event?: DragEvent): void => {
+    isInDropAction = true;
     /* indexOf compares using strict equality
        if the item is something where properties can change frequently, then the
        itemsAreEqual prop should be overloaded
@@ -261,7 +265,9 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
   };
 
   const _onDragEnd = (item?: any, event?: DragEvent): void => {
-    if (event) {
+    // Because these calls are async, it's possible for us to get the drag end call while
+    // we're in the middle of a drop action, so don't run the delete code if that's the case
+    if (event && !isInDropAction) {
       // If we have a move event, and we still have selected items (indicating that we
       // haven't already moved items within the well) we should remove the item(s)
       if (event.dataTransfer?.dropEffect === 'move' && focusedItemIndices.length > 0) {
@@ -275,6 +281,7 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
       dataList?.clear();
     }
     setDraggedIndex(-1);
+    isInDropAction = false;
   };
 
   const defaultDragDropEvents: IDragDropEvents = {
@@ -369,6 +376,13 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
     ],
   );
 
+  const _onValidateInput = React.useCallback(() => {
+    if (onValidateInput && createGenericItem) {
+      const itemToConvert = createGenericItem(queryString, onValidateInput(queryString));
+      _onSuggestionSelected(undefined, { item: itemToConvert, isSelected: false });
+    }
+  }, [onValidateInput, createGenericItem, queryString, _onSuggestionSelected]);
+
   const _onInputKeyDown = React.useCallback(
     (ev: React.KeyboardEvent<Autofill | HTMLElement>) => {
       if (isSuggestionsShown) {
@@ -395,6 +409,8 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
                 // execute the header action
                 headerItems![headerItemIndex].onExecute!();
               }
+            } else {
+              _onValidateInput();
             }
             break;
           case KeyCodes.up:
@@ -422,6 +438,7 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
       selectPreviousSuggestion,
       showPicker,
       suggestionItems,
+      _onValidateInput,
     ],
   );
 
@@ -468,14 +485,6 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
       if (!composing) {
         // update query string
         setQueryString(value);
-        // If we now have no query string, we want to deselect any selected item in the picker
-        if (value === '') {
-          clearPickerSelectedIndex();
-        }
-        // if nothing is selcted and the user has typed, selected the first picker item
-        else if (focusItemIndex === -1 && headerItemIndex === -1 && footerItemIndex === -1) {
-          setFocusItemIndex(0);
-        }
         // suggestions isn't showing and we haven't just cleared the input, show the picker
         !isSuggestionsShown && value !== '' ? showPicker(true) : null;
         if (!resultItemsList) {
@@ -483,7 +492,6 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
         }
         if (onInputChange) {
           onInputChange(value, composing, resultItemsList);
-          clearQueryString();
           if (resultItemsList && resultItemsList.length > 0) {
             addItems(resultItemsList);
             showPicker(false);
@@ -495,19 +503,7 @@ export const UnifiedPicker = <T extends {}>(props: IUnifiedPickerProps<T>): JSX.
         }
       }
     },
-    [
-      addItems,
-      clearQueryString,
-      isSuggestionsShown,
-      onInputChange,
-      setQueryString,
-      showPicker,
-      clearPickerSelectedIndex,
-      setFocusItemIndex,
-      focusItemIndex,
-      footerItemIndex,
-      headerItemIndex,
-    ],
+    [addItems, isSuggestionsShown, onInputChange, setQueryString, showPicker],
   );
 
   const _onPaste = React.useCallback(
