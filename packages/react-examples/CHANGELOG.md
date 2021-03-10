@@ -1,8 +1,49 @@
 # Change Log - @fluentui/react-examples
 
-This log was last generated on Fri, 05 Mar 2021 20:30:59 GMT and should not be manually modified.
+This log was last generated on Tue, 09 Mar 2021 07:32:29 GMT and should not be manually modified.
 
 <!-- Start content -->
+
+## [8.4.1](https://github.com/microsoft/fluentui/tree/@fluentui/react-examples_v8.4.1)
+
+Tue, 09 Mar 2021 07:32:29 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/react-examples_v8.4.0..@fluentui/react-examples_v8.4.1)
+
+### Patches
+
+- Bump @fluentui/azure-themes to v8.0.7 ([PR #17299](https://github.com/microsoft/fluentui/pull/17299) by sarah.higley@microsoft.com)
+
+### Changes
+
+- Bump @fluentui/react-slider to v1.0.0-beta.59 ([PR #17299](https://github.com/microsoft/fluentui/pull/17299) by sarah.higley@microsoft.com)
+- Bump @fluentui/react-tabs to v1.0.0-beta.61 ([PR #17299](https://github.com/microsoft/fluentui/pull/17299) by sarah.higley@microsoft.com)
+- Bump @fluentui/react-toggle to v1.0.0-beta.59 ([PR #17299](https://github.com/microsoft/fluentui/pull/17299) by sarah.higley@microsoft.com)
+
+## [8.4.0](https://github.com/microsoft/fluentui/tree/@fluentui/react-examples_v8.4.0)
+
+Sun, 07 Mar 2021 23:34:51 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/react-examples_v8.3.1..@fluentui/react-examples_v8.4.0)
+
+### Minor changes
+
+- Add MenuTrigger examples ([PR #17271](https://github.com/microsoft/fluentui/pull/17271) by lingfan.gao@microsoft.com)
+
+### Patches
+
+- Bump @fluentui/react to v8.1.6 ([PR #17296](https://github.com/microsoft/fluentui/pull/17296) by miclo@microsoft.com)
+- Bump @fluentui/azure-themes to v8.0.6 ([PR #17296](https://github.com/microsoft/fluentui/pull/17296) by miclo@microsoft.com)
+- Bump @fluentui/storybook to v1.0.0 ([PR #17296](https://github.com/microsoft/fluentui/pull/17296) by miclo@microsoft.com)
+- Bump @fluentui/react-charting to v5.0.7 ([PR #17296](https://github.com/microsoft/fluentui/pull/17296) by miclo@microsoft.com)
+- Bump @fluentui/react-docsite-components to v8.0.6 ([PR #17296](https://github.com/microsoft/fluentui/pull/17296) by miclo@microsoft.com)
+- Bump @fluentui/theme-samples to v8.0.6 ([PR #17296](https://github.com/microsoft/fluentui/pull/17296) by miclo@microsoft.com)
+- Bump @fluentui/react-experiments to v8.0.6 ([PR #17287](https://github.com/microsoft/fluentui/pull/17287) by jaredi@microsoft.com)
+- Bump @fluentui/react-menu to v0.8.0 ([PR #17271](https://github.com/microsoft/fluentui/pull/17271) by lingfan.gao@microsoft.com)
+
+### Changes
+
+- Bump @fluentui/react-slider to v1.0.0-beta.58 ([PR #17296](https://github.com/microsoft/fluentui/pull/17296) by miclo@microsoft.com)
+- Bump @fluentui/react-tabs to v1.0.0-beta.60 ([PR #17296](https://github.com/microsoft/fluentui/pull/17296) by miclo@microsoft.com)
+- Bump @fluentui/react-toggle to v1.0.0-beta.58 ([PR #17296](https://github.com/microsoft/fluentui/pull/17296) by miclo@microsoft.com)
 
 ## [8.3.1](https://github.com/microsoft/fluentui/tree/@fluentui/react-examples_v8.3.1)
 
